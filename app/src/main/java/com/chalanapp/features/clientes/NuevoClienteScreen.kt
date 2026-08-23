@@ -47,7 +47,7 @@ fun NuevoClienteScreen(
 
             Button(
                 onClick = {
-                    viewModel.agregarClienteManual(nombre, telefono, direccion)
+                    viewModel.guardarCliente(nombre, telefono, direccion)
                     onVolver() // Volvemos a la lista después de guardar
                 },
                 modifier = Modifier.fillMaxWidth(),

@@ -8,29 +8,23 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.util.UUID // <-- Asegúrate de que esto esté importado
 
 class ClientesViewModel : ViewModel() {
     private val dao = Graph.dao
 
-    // Aquí estaba el error. Le agregamos <List<ClienteEntity>>
+    // Escucha continuamente los cambios en la tabla clientes
     val clientes: StateFlow<List<ClienteEntity>> = dao.getAllClientes()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
 
-    // Función temporal para probar que la base de datos guarda
-    fun agregarClienteDePrueba() {
+    fun guardarCliente(nombre: String, telefono: String, direccion: String) {
         viewModelScope.launch {
             val nuevoCliente = ClienteEntity(
-                nombre = "Juan Pérez (Prueba)",
-                telefono = "11-4444-5555",
-                direccion = "Av. Cabildo 1234"
-            )
-            dao.insertCliente(nuevoCliente)
-        }
-    }
-    // Función para guardar datos reales desde el formulario
-    fun agregarClienteManual(nombre: String, telefono: String, direccion: String) {
-        viewModelScope.launch {
-            val nuevoCliente = ClienteEntity(
+                id = UUID.randomUUID().toString(), // <-- ¡AQUÍ ESTÁ LA MAGIA DEL ID!
                 nombre = nombre,
                 telefono = telefono,
                 direccion = direccion

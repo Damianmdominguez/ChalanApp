@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- Permitimos compartir archivos guardados en la memoria caché (donde guardaremos el PDF) -->
+    <cache-path name="shared_pdfs" path="pdfs/" />
+</paths>

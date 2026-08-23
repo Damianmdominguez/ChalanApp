@@ -3,8 +3,11 @@ package com.chalanapp.data.local
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
-import java.util.UUID
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 
+@Serializable
 @Entity(
     tableName = "presupuestos",
     foreignKeys = [
@@ -18,21 +21,30 @@ import java.util.UUID
     indices = [androidx.room.Index(value = ["clienteId"])]
 )
 data class PresupuestoEntity(
-    @PrimaryKey val id: String = UUID.randomUUID().toString(),
-    val clienteId: String, // Vincula este presupuesto con el cliente
+    @PrimaryKey(autoGenerate = true)
+    val id: Int = 0,
 
-    // Lo que ve el cliente
+    @SerialName("cliente_id")
+    val clienteId: String,
+
+    @SerialName("descripcion")
     val descripcionTrabajo: String,
-    val montoManoObra: Double,
-    val montoMateriales: Double,
-    val materialesCliente: Boolean, // Si es true, el cliente compró los repuestos
 
-    // Lo que queda oculto para tu control de rentabilidad
+    @SerialName("mano_obra")
+    val montoManoObra: Double,
+
+    @SerialName("materiales")
+    val montoMateriales: Double,
+
+    @SerialName("materiales_cliente")
+    val materialesCliente: Boolean,
+
+    @SerialName("costo_real")
     val costoRealCompra: Double,
+
+    @SerialName("viaticos")
     val costoViaticos: Double,
 
-    // Puede ser: "Borrador", "PDF Generado", "Aprobado", "Completado"
-    val estado: String = "Borrador",
-
+    @Transient
     val isSynced: Boolean = false
 )

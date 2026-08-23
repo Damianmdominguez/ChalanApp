@@ -32,4 +32,7 @@ interface AppDao {
 
     @Query("SELECT * FROM presupuestos WHERE isSynced = 0")
     suspend fun getPresupuestosNoSincronizados(): List<PresupuestoEntity>
+
+    @Query("SELECT * FROM presupuestos ORDER BY id DESC")
+    fun getAllPresupuestos(): kotlinx.coroutines.flow.Flow<List<PresupuestoEntity>>
 }

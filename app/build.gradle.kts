@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("com.google.devtools.ksp") version "2.0.21-1.0.27" //
+    id("org.jetbrains.kotlin.plugin.serialization") version "2.0.21" // O la versión de tu Kotlin
 }
 
 android {
@@ -66,4 +67,13 @@ dependencies {
     ksp("androidx.room:room-compiler:$room_version")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
     implementation("androidx.navigation:navigation-compose:2.7.6")
+    // Supabase (Base de datos en la nube)
+    implementation(libs.supabase.postgrest)
+    implementation(libs.ktor.client.android)
+    // WorkManager (Para tareas en segundo plano)
+    val work_version = "2.9.0"
+    implementation("androidx.work:work-runtime-ktx:$work_version")
+
+// Serialización JSON (Para hablar con Supabase)
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 }

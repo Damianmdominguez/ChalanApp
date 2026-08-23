@@ -14,30 +14,40 @@ import androidx.compose.ui.unit.dp
 fun ListaClientesScreen(
     viewModel: ClientesViewModel,
     onNavegarANuevo: () -> Unit,
-    onNavegarAPresupuesto: () -> Unit // <-- Agregado
+    onNavegarAPresupuestos: () -> Unit // <-- La orden de ir a presupuestos
 ) {
     val clientes by viewModel.clientes.collectAsState()
 
     Scaffold(
         floatingActionButton = {
-            FloatingActionButton(onClick = { onNavegarAPresupuesto() }) { // Abre presupuestos
-                Text("📝")
+            FloatingActionButton(onClick = { onNavegarAPresupuestos() }) {
+                Text("📝") // Botón flotante para ir a la lista de presupuestos
             }
         }
     ) { padding ->
         Column(modifier = Modifier.padding(padding).fillMaxSize()) {
-            Row(modifier = Modifier.fillMaxWidth().padding(16.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+
+            // Fila superior con el Título y el Botón de + Cliente
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
                 Text("Chalán App", style = MaterialTheme.typography.headlineMedium)
-                Button(onClick = { onNavegarANuevo() }) { Text("+ Cliente") } // Botón para clientes
+                Button(onClick = { onNavegarANuevo() }) {
+                    Text("+ Cliente")
+                }
             }
 
+            // Lista de clientes
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 items(clientes) { cliente ->
                     Card(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp).fillMaxWidth()) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Text(cliente.nombre, style = MaterialTheme.typography.titleMedium)
                             Text(cliente.telefono, style = MaterialTheme.typography.bodyMedium)
-                            Text(cliente.direccion, style = MaterialTheme.typography.bodySmall)
+                            if (cliente.direccion.isNotBlank()) {
+                                Text(cliente.direccion, style = MaterialTheme.typography.bodySmall)
+                            }
                         }
                     }
                 }

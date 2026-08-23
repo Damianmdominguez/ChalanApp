@@ -16,6 +16,9 @@ class PresupuestosViewModel : ViewModel() {
     // AQUÍ ESTABA EL ERROR: Le agregamos <List<ClienteEntity>>
     val clientes: StateFlow<List<ClienteEntity>> = dao.getAllClientes()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    // Lee los presupuestos de la base de datos y los mantiene actualizados
+    val presupuestos: StateFlow<List<PresupuestoEntity>> = dao.getAllPresupuestos()
+    .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     fun guardarPresupuesto(
         clienteId: String,
