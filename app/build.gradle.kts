@@ -73,6 +73,7 @@ dependencies {
     // WorkManager (Para tareas en segundo plano)
     val work_version = "2.9.0"
     implementation("androidx.work:work-runtime-ktx:$work_version")
+    implementation("androidx.datastore:datastore-preferences:1.1.0")
 
 // Serialización JSON (Para hablar con Supabase)
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")

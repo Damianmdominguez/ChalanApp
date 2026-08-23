@@ -14,40 +14,46 @@ import androidx.compose.ui.unit.dp
 fun ListaClientesScreen(
     viewModel: ClientesViewModel,
     onNavegarANuevo: () -> Unit,
-    onNavegarAPresupuestos: () -> Unit // <-- La orden de ir a presupuestos
+    onNavegarAPresupuestos: () -> Unit,
+    onNavegarAConfiguracion: () -> Unit // <-- NUEVO PARÁMETRO
 ) {
     val clientes by viewModel.clientes.collectAsState()
 
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(onClick = { onNavegarAPresupuestos() }) {
-                Text("📝") // Botón flotante para ir a la lista de presupuestos
+                Text("📝")
             }
         }
     ) { padding ->
         Column(modifier = Modifier.padding(padding).fillMaxSize()) {
 
-            // Fila superior con el Título y el Botón de + Cliente
+            // Fila superior modificada
             Row(
                 modifier = Modifier.fillMaxWidth().padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
             ) {
                 Text("Chalán App", style = MaterialTheme.typography.headlineMedium)
-                Button(onClick = { onNavegarANuevo() }) {
-                    Text("+ Cliente")
+
+                Row {
+                    // Botón de Configuración
+                    IconButton(onClick = { onNavegarAConfiguracion() }) {
+                        Text("⚙️")
+                    }
+                    Button(onClick = { onNavegarANuevo() }) {
+                        Text("+ Cliente")
+                    }
                 }
             }
 
-            // Lista de clientes
+            // ... (el resto del código del LazyColumn con los clientes queda igual) ...
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 items(clientes) { cliente ->
                     Card(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp).fillMaxWidth()) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Text(cliente.nombre, style = MaterialTheme.typography.titleMedium)
                             Text(cliente.telefono, style = MaterialTheme.typography.bodyMedium)
-                            if (cliente.direccion.isNotBlank()) {
-                                Text(cliente.direccion, style = MaterialTheme.typography.bodySmall)
-                            }
                         }
                     }
                 }

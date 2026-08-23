@@ -2,6 +2,7 @@ package com.chalanapp.features.presupuestos
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
@@ -15,10 +16,18 @@ import java.io.FileOutputStream
 
 object PdfService {
 
-    fun generarYCompartirPdf(context: Context, cliente: ClienteEntity, presupuesto: PresupuestoEntity) {
+    fun generarYCompartirPdf(
+        context: Context,
+        cliente: ClienteEntity,
+        presupuesto: PresupuestoEntity,
+        nombreEmpresa: String,
+        logoBitmap: Bitmap?
+    ) {
         // 1. Creamos el documento en blanco
         val documento = PdfDocument()
-        val pageInfo = PdfDocument.PageInfo.Builder(595, 842, 1).create() // Tamaño A4 estándar
+        val anchoPagina = 595
+        val altoPagina = 842
+        val pageInfo = PdfDocument.PageInfo.Builder(anchoPagina, altoPagina, 1).create() // Tamaño A4 estándar
         val pagina = documento.startPage(pageInfo)
         val canvas: Canvas = pagina.canvas
 
@@ -33,19 +42,39 @@ object PdfService {
             textSize = 16f
         }
 
-        // 3. Dibujamos los textos en la hoja (X, Y)
-        canvas.drawText("CHALÁN APP - PRESUPUESTO", 50f, 80f, tituloPaint)
-
-        canvas.drawText("Cliente: ${cliente.nombre}", 50f, 130f, textoPaint)
-        canvas.drawText("Teléfono: ${cliente.telefono}", 50f, 160f, textoPaint)
-        if (cliente.direccion.isNotBlank()) {
-            canvas.drawText("Dirección: ${cliente.direccion}", 50f, 190f, textoPaint)
+        // 3. Dibujamos el Logo y el Nombre de la Empresa
+        if (logoBitmap != null) {
+            // Escalamos el logo a 100x100 para que no rompa la hoja
+            val logoEscalado = Bitmap.createScaledBitmap(logoBitmap, 100, 100, true)
+            canvas.drawBitmap(logoEscalado, 50f, 40f, null)
         }
 
-        canvas.drawText("Trabajo a realizar:", 50f, 240f, tituloPaint)
-        canvas.drawText(presupuesto.descripcionTrabajo, 50f, 270f, textoPaint)
+        // Si hay logo, corremos el texto a la derecha. Si no, queda a la izquierda.
+        val posicionXTexto = if (logoBitmap != null) 170f else 50f
 
-        var posicionY = 320f
+        // Dibujamos el nombre que el usuario configuró
+        canvas.drawText(nombreEmpresa, posicionXTexto, 90f, tituloPaint)
+
+        // 4. Dibujamos los datos del cliente
+        // Empezamos un poco más abajo (Y=170) para dejarle espacio libre al logo
+        var posicionY = 170f
+        canvas.drawText("Cliente: ${cliente.nombre}", 50f, posicionY, textoPaint)
+        posicionY += 30f
+        canvas.drawText("Teléfono: ${cliente.telefono}", 50f, posicionY, textoPaint)
+        posicionY += 30f
+        if (cliente.direccion.isNotBlank()) {
+            canvas.drawText("Dirección: ${cliente.direccion}", 50f, posicionY, textoPaint)
+            posicionY += 30f
+        }
+
+        // 5. Dibujamos los detalles del trabajo a realizar
+        posicionY += 20f
+        canvas.drawText("Trabajo a realizar:", 50f, posicionY, tituloPaint)
+        posicionY += 30f
+        canvas.drawText(presupuesto.descripcionTrabajo, 50f, posicionY, textoPaint)
+
+        // 6. Dibujamos los costos
+        posicionY += 50f
         canvas.drawText("Mano de Obra: $${presupuesto.montoManoObra}", 50f, posicionY, textoPaint)
         posicionY += 30f
 
@@ -61,9 +90,19 @@ object PdfService {
         posicionY += 50f
         canvas.drawText("TOTAL: $${total}", 50f, posicionY, tituloPaint)
 
+        // 7. Marca de agua / Pie de página
+        val paintPieDePagina = Paint().apply {
+            textSize = 12f
+            color = Color.GRAY
+            textAlign = Paint.Align.CENTER
+        }
+
+        // Se dibuja en el centro absoluto (ancho/2) y justo arriba del borde inferior
+        canvas.drawText("Generado con Chalán App", anchoPagina / 2f, altoPagina - 30f, paintPieDePagina)
+
         documento.finishPage(pagina)
 
-        // 4. Guardamos el archivo en la memoria temporal del celular
+        // 8. Guardamos el archivo en la memoria temporal del celular
         val carpetaPdfs = File(context.cacheDir, "pdfs")
         carpetaPdfs.mkdirs()
         val archivoPdf = File(carpetaPdfs, "Presupuesto_${cliente.nombre.replace(" ", "_")}.pdf")
@@ -71,7 +110,7 @@ object PdfService {
         documento.writeTo(FileOutputStream(archivoPdf))
         documento.close()
 
-        // 5. Compartimos el PDF por WhatsApp u otra app
+        // 9. Compartimos el PDF por WhatsApp u otra app
         compartirArchivo(context, archivoPdf)
     }
 

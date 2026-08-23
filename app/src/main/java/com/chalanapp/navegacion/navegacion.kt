@@ -27,8 +27,10 @@ fun NavegacionApp() {
             ListaClientesScreen(
                 viewModel = clientesViewModel,
                 onNavegarANuevo = { navController.navigate("nuevo_cliente") },
-                onNavegarAPresupuestos = { navController.navigate("lista_presupuestos") } // <-- Viaja a la lista
+                onNavegarAPresupuestos = { navController.navigate("lista_presupuestos") },
+                onNavegarAConfiguracion = { navController.navigate("configuracion") } // <-- ESTA LÍNEA
             )
+
         }
 
         // 2. Formulario de Cliente
@@ -43,7 +45,9 @@ fun NavegacionApp() {
         composable("lista_presupuestos") {
             ListaPresupuestosScreen(
                 viewModel = presupuestosViewModel,
-                onNavegarANuevo = { navController.navigate("nuevo_presupuesto") } // <-- Viaja al formulario
+                clientesViewModel = clientesViewModel, // <-- Faltaba esto
+                onNavegarANuevo = { navController.navigate("nuevo_presupuesto") },
+                onVolver = { navController.popBackStack() } // <-- Y faltaba esto
             )
         }
 
@@ -51,6 +55,13 @@ fun NavegacionApp() {
         composable("nuevo_presupuesto") {
             NuevoPresupuestoScreen(
                 viewModel = presupuestosViewModel,
+                onVolver = { navController.popBackStack() }
+            )
+        }
+        // ... tus otras pantallas ...
+
+        composable("configuracion") {
+            com.chalanapp.features.configuracion.ConfiguracionScreen(
                 onVolver = { navController.popBackStack() }
             )
         }
