@@ -16,15 +16,15 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun ListaPresupuestosScreen(
-    viewModel: PresupuestosViewModel, // O como se llame tu ViewModel de presupuestos
-    clientesViewModel: ClientesViewModel, // Necesario para buscar los datos del cliente
+    viewModel: PresupuestosViewModel,
+    clientesViewModel: ClientesViewModel,
     onNavegarANuevo: () -> Unit,
+    onNavegarAGarantia: (Int) -> Unit, // <-- NUEVO PARÁMETRO
     onVolver: () -> Unit
 ) {
     val presupuestos by viewModel.presupuestos.collectAsState()
     val clientes by clientesViewModel.clientes.collectAsState()
 
-    // Herramientas necesarias para el PDF
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val repo = remember { ConfiguracionRepository(context) }
@@ -46,7 +46,6 @@ fun ListaPresupuestosScreen(
 
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 items(presupuestos) { presupuesto ->
-                    // Buscamos a qué cliente le pertenece este presupuesto
                     val cliente = clientes.find { it.id == presupuesto.clienteId }
 
                     Card(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp).fillMaxWidth()) {
@@ -64,26 +63,22 @@ fun ListaPresupuestosScreen(
                             }
                             Text(text = "Total: $$total", style = MaterialTheme.typography.titleSmall)
 
-                            Spacer(modifier = Modifier.height(8.dp))
+                            Spacer(modifier = Modifier.height(16.dp))
 
-                            // --- BOTÓN DE COMPARTIR ACTUALIZADO ---
+                            // Botón 1: Compartir Presupuesto
                             Button(
                                 onClick = {
                                     if (cliente != null) {
-                                        // Lanzamos una corrutina para poder leer la base de datos (DataStore)
                                         scope.launch {
-                                            // 1. Leemos los datos configurados
                                             val nombreNegocio = repo.nombreNegocioFlow.first()
                                             val rutaLogo = repo.rutaLogoFlow.first()
 
-                                            // 2. Convertimos la ruta en un Bitmap (si existe)
                                             val logoBitmap = if (rutaLogo != null) {
                                                 BitmapFactory.decodeFile(rutaLogo)
                                             } else {
                                                 null
                                             }
 
-                                            // 3. Generamos el PDF con todos los datos
                                             PdfService.generarYCompartirPdf(
                                                 context = context,
                                                 cliente = cliente,
@@ -96,7 +91,17 @@ fun ListaPresupuestosScreen(
                                 },
                                 modifier = Modifier.fillMaxWidth()
                             ) {
-                                Text("📄 Compartir PDF")
+                                Text("📄 Compartir Presupuesto")
+                            }
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            // Botón 2: NUEVO - Emitir Garantía
+                            OutlinedButton(
+                                onClick = { onNavegarAGarantia(presupuesto.id) },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text("✍️ Emitir Garantía")
                             }
                         }
                     }
